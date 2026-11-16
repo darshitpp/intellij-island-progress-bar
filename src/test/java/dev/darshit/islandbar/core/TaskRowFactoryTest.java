@@ -14,17 +14,13 @@ class TaskRowFactoryTest {
         assertEquals(TaskNames.MAX_CHARS, n.length());
     }
 
-    @Test void detailStoppingWinsOverPaused() {
-        assertEquals("Stopping…", TaskRowFactory.detail(true, true, "d", "t"));
-    }
-
-    @Test void detailPausedWinsOverText() {
-        assertEquals("Paused", TaskRowFactory.detail(false, true, "d", "t"));
+    @Test void detailStoppingWinsOverText() {
+        assertEquals("Stopping…", TaskRowFactory.detail(true, "d", "t"));
     }
 
     @Test void detailFallsBackToText() {
-        assertEquals("t", TaskRowFactory.detail(false, false, null, "t"));
-        assertEquals("d", TaskRowFactory.detail(false, false, "d", "t"));
+        assertEquals("t", TaskRowFactory.detail(false, null, "t"));
+        assertEquals("d", TaskRowFactory.detail(false, "d", "t"));
     }
 
     @Test void emojiAndRtlNamesPassThrough() {

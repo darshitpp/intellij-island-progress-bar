@@ -24,7 +24,7 @@ class ObjcActionsTest {
 
     @Test void clearingWithTheOwnerDropsTheCallbacks() {
         Object panel = new Object();
-        var target = Objc.actionTarget(panel, chevron::incrementAndGet, id -> {}, id -> {}, id -> {});
+        var target = Objc.actionTarget(panel, chevron::incrementAndGet, id -> {}, id -> {});
         click(target);
         assertEquals(1, chevron.get());
         Objc.clearActions(panel);
@@ -34,8 +34,8 @@ class ObjcActionsTest {
 
     @Test void anOlderPanelCannotClearANewerOnesCallbacks() {
         Object older = new Object(), newer = new Object();
-        Objc.actionTarget(older, () -> fail("older"), id -> {}, id -> {}, id -> {});
-        var target = Objc.actionTarget(newer, chevron::incrementAndGet, id -> {}, id -> {}, id -> {});
+        Objc.actionTarget(older, () -> fail("older"), id -> {}, id -> {});
+        var target = Objc.actionTarget(newer, chevron::incrementAndGet, id -> {}, id -> {});
         Objc.clearActions(older); // its remove() ran after the newer panel was created
         click(target);
         assertEquals(1, chevron.get());
@@ -44,8 +44,8 @@ class ObjcActionsTest {
 
     @Test void oneTargetPerLoad() {
         Object a = new Object(), b = new Object();
-        var first = Objc.actionTarget(a, () -> {}, id -> {}, id -> {}, id -> {});
-        var second = Objc.actionTarget(b, () -> {}, id -> {}, id -> {}, id -> {});
+        var first = Objc.actionTarget(a, () -> {}, id -> {}, id -> {});
+        var second = Objc.actionTarget(b, () -> {}, id -> {}, id -> {});
         assertEquals(first, second);
         Objc.clearActions(b);
     }

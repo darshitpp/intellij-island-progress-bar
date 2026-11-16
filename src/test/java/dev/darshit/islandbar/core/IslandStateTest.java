@@ -10,10 +10,10 @@ class IslandStateTest {
     private final AtomicLong delay = new AtomicLong(500);
     private final IslandState state = new IslandState(delay::get);
 
-    private static TaskRow row(long id) { return row(id, 0.5, false, false); }
+    private static TaskRow row(long id) { return row(id, 0.5, false); }
 
-    private static TaskRow row(long id, Double fraction, boolean stopping, boolean paused) {
-        return new TaskRow(id, fraction, "t" + id, null, true, null, true, paused, stopping, null);
+    private static TaskRow row(long id, Double fraction, boolean stopping) {
+        return new TaskRow(id, fraction, "t" + id, null, true, null, stopping, null);
     }
 
     @Test void nothingShownBeforeDelay() {
@@ -82,29 +82,29 @@ class IslandStateTest {
         assertEquals(1, state.update(100, List.of(row(1))).primary().id());
     }
 
-    @Test void rowsKeepStoppingAndPausedFlags() {
-        state.update(0, List.of(row(1, 0.5, true, false), row(2, 0.5, false, true)));
-        IslandView v = state.update(600, List.of(row(1, 0.5, true, false), row(2, 0.5, false, true)));
+    @Test void rowsKeepStoppingFlag() {
+        state.update(0, List.of(row(1, 0.5, true), row(2, 0.5, false)));
+        IslandView v = state.update(600, List.of(row(1, 0.5, true), row(2, 0.5, false)));
         assertTrue(v.rows().get(0).stopping());
-        assertTrue(v.rows().get(1).paused());
+        assertFalse(v.rows().get(1).stopping());
     }
 
     @Test void equalityIgnoresControls() {
         TaskControls a = new TaskControls() {
-            public void cancel() {} public void pause() {} public void resume() {}
+            public void cancel() {}
         };
         TaskControls b = new TaskControls() {
-            public void cancel() {} public void pause() {} public void resume() {}
+            public void cancel() {}
         };
-        TaskRow r1 = new TaskRow(1, 0.5, "n", "d", true, "tip", true, false, false, a);
-        TaskRow r2 = new TaskRow(1, 0.5, "n", "d", true, "tip", true, false, false, b);
+        TaskRow r1 = new TaskRow(1, 0.5, "n", "d", true, "tip", false, a);
+        TaskRow r2 = new TaskRow(1, 0.5, "n", "d", true, "tip", false, b);
         assertEquals(r1, r2);
         assertEquals(r1.hashCode(), r2.hashCode());
     }
 
     @Test void indeterminateAndNaNFractionPassThroughAsNull() {
-        List<TaskRow> in = List.of(row(1, Double.NaN, false, false), row(2, 1.7, false, false),
-                row(3, -0.2, false, false), row(4, null, false, false));
+        List<TaskRow> in = List.of(row(1, Double.NaN, false), row(2, 1.7, false),
+                row(3, -0.2, false), row(4, null, false));
         state.update(0, in);
         List<TaskRow> out = state.update(600, in).rows();
         assertNull(out.get(0).fraction());

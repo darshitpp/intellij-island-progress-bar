@@ -90,10 +90,10 @@ public final class PillGeometry {
     /** Pixels of a bar view {@code widthPt} wide (retina 2 px per point), so a theme draws at its natural aspect. */
     public static int barPxWidth(double widthPt) { return Math.max(2, (int) Math.round(widthPt * 2)); }
 
-    /** A list row's bar view width in points: between the name column and the percentage, Pause, Cancel and Hide. */
+    /** A list row's bar view width in points: between the name column and the percentage, Cancel and Hide. */
     public static double rowBarWidthPt(double listWidth) {
         double barX = LIST_PAD + ROW_NAME_W + GAP;
-        double pctX = listWidth - LIST_PAD - 3 * BUTTON - 2 * ROW_BTN_GAP - GAP - ROW_PCT_W;
+        double pctX = listWidth - LIST_PAD - 2 * BUTTON - ROW_BTN_GAP - GAP - ROW_PCT_W;
         return Math.max(0, pctX - GAP - barX);
     }
 

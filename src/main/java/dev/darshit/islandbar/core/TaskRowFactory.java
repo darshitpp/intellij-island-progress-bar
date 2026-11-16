@@ -12,9 +12,8 @@ public final class TaskRowFactory {
         return n != null ? n : IslandBundle.message("task.working");
     }
 
-    public static @Nullable String detail(boolean stopping, boolean paused, @Nullable String details, @Nullable String text) {
+    public static @Nullable String detail(boolean stopping, @Nullable String details, @Nullable String text) {
         if (stopping) return IslandBundle.message("task.stopping");
-        if (paused) return IslandBundle.message("task.paused");
         return TaskNames.pick(details, text);
     }
 }

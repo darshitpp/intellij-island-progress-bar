@@ -167,9 +167,9 @@ class PillGeometryTest {
     }
 
     @Test void rowBarWidthFollowsTheListWidth() {
-        // 400 pt list: 12 pad + 120 name + 8 gap before the bar; 8 gap + 38 pct + 8 gap + 3 buttons + 2 gaps + 12 pad after
-        assertEquals(122.0, PillGeometry.rowBarWidthPt(400), EPS);
-        assertEquals(244, PillGeometry.rowBarPxWidth());
+        // 400 pt list: 12 pad + 120 name + 8 gap before the bar; 8 gap + 38 pct + 8 gap + 2 buttons + 1 gap + 12 pad after
+        assertEquals(148.0, PillGeometry.rowBarWidthPt(400), EPS);
+        assertEquals(296, PillGeometry.rowBarPxWidth());
         assertEquals(0.0, PillGeometry.rowBarWidthPt(100), EPS);
     }
 

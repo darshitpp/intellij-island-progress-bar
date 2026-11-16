@@ -62,10 +62,10 @@ class IslandCoordinatorTest {
 
     void tick(String focused, String... open) { c.tick(List.of(open), focused); }
 
-    static TaskRow row(long id) { return row(id, false, null); }
+    static TaskRow row(long id) { return row(id, null); }
 
-    static TaskRow row(long id, boolean paused, TaskControls controls) {
-        return new TaskRow(id, 0.5, "t" + id, null, true, null, true, paused, false, controls);
+    static TaskRow row(long id, TaskControls controls) {
+        return new TaskRow(id, 0.5, "t" + id, null, true, null, false, controls);
     }
 
     List<String> portEvents() {
@@ -84,8 +84,6 @@ class IslandCoordinatorTest {
         final List<String> calls = new ArrayList<>();
         RuntimeException toThrow;
         public void cancel() { calls.add("cancel"); if (toThrow != null) throw toThrow; }
-        public void pause() { calls.add("pause"); }
-        public void resume() { calls.add("resume"); }
     }
 
     @Test void showsPortForFocusedProjectAfterDelay() {
@@ -138,14 +136,14 @@ class IslandCoordinatorTest {
         assertEquals(List.of("remove", "restore A"), events);
     }
 
-    @Test void actionsHideCancelPauseRunOnEdtAndUseCurrentRows() {
+    @Test void actionsHideAndCancelRunOnEdtAndUseCurrentRows() {
         RecordingControls first = new RecordingControls();
         RecordingControls current = new RecordingControls();
-        tasks.put("A", List.of(row(1, false, first)));
+        tasks.put("A", List.of(row(1, first)));
         tick("A", "A"); now = 500; tick("A", "A");
         IslandCoordinator.Actions a = actions.get(0);
 
-        tasks.put("A", List.of(row(1, false, current))); // fresh controls next poll, same row
+        tasks.put("A", List.of(row(1, current))); // fresh controls next poll, same row
         now = 600; tick("A", "A");
 
         queueEdt = true;
@@ -154,17 +152,6 @@ class IslandCoordinatorTest {
         edtQueue.removeFirst().run();
         assertEquals(List.of("cancel"), current.calls);
         assertTrue(first.calls.isEmpty(), "uses the current rows' controls");
-
-        a.togglePause(1);
-        edtQueue.removeFirst().run();
-        assertEquals(List.of("cancel", "pause"), current.calls);
-
-        tasks.put("A", List.of(row(1, true, current)));
-        queueEdt = false; now = 700; tick("A", "A");
-        queueEdt = true;
-        a.togglePause(1);
-        edtQueue.removeFirst().run();
-        assertEquals(List.of("cancel", "pause", "resume"), current.calls);
 
         events.clear();
         a.hide(1);
@@ -187,7 +174,7 @@ class IslandCoordinatorTest {
     @Test void staleIdActionsAreNoOps() {
         RecordingControls controls = new RecordingControls();
         controls.toThrow = new IllegalStateException("platform says no");
-        tasks.put("A", List.of(row(1, false, controls)));
+        tasks.put("A", List.of(row(1, controls)));
         tick("A", "A"); now = 500; tick("A", "A");
         IslandCoordinator.Actions a = actions.get(0);
         events.clear();
@@ -198,7 +185,7 @@ class IslandCoordinatorTest {
         assertTrue(disabledBy.isEmpty());
         assertTrue(events.isEmpty(), "the pill stays");
 
-        assertDoesNotThrow(() -> { a.cancel(99); a.togglePause(99); a.hide(99); });
+        assertDoesNotThrow(() -> { a.cancel(99); a.hide(99); });
         assertEquals(List.of("cancel"), controls.calls);
         assertTrue(events.isEmpty());
 
@@ -208,10 +195,10 @@ class IslandCoordinatorTest {
 
     @Test void actionsFromAnOldPortAreNoOps() {
         RecordingControls controls = new RecordingControls();
-        tasks.put("A", List.of(row(1, false, controls)));
+        tasks.put("A", List.of(row(1, controls)));
         tick("A", "A"); now = 500; tick("A", "A");
         tasks.clear(); now = 600; tick("A", "A");          // pill removed
-        tasks.put("A", List.of(row(1, false, controls)));
+        tasks.put("A", List.of(row(1, controls)));
         now = 700; tick("A", "A"); now = 1200; tick("A", "A"); // a new pill
         events.clear();
         actions.get(0).cancel(1);

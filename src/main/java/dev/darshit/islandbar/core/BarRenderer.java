@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * Themes advance their animation one step per paint, so the caller's frame rate sets the animation speed.
  */
 public final class BarRenderer {
-    private static final Color STOPPING_COLOR = new Color(0xE8A33D), PAUSED_COLOR = new Color(0x8C8C8C);
+    private static final Color STOPPING_COLOR = new Color(0xE8A33D);
     private static final int SWEEP_W = 240, SWEEP_STEP = 24;
 
     private final Predicate<Class<?>> isPlatformUi;
@@ -243,7 +243,6 @@ public final class BarRenderer {
         Color progress = switch (tint) {
             case NORMAL -> color("ProgressBar.progressColor", new Color(0x3574F0));
             case STOPPING -> STOPPING_COLOR;
-            case PAUSED -> PAUSED_COLOR;
         };
         boolean still = f == null && reduceMotion;
         boolean sameLook = tint == lastTint && track.equals(lastTrack) && progress.equals(lastProgress);

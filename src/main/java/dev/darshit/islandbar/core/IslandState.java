@@ -31,7 +31,7 @@ public final class IslandState {
             Double f = r.fraction();
             if (f != null) f = f.isNaN() ? null : Math.max(0.0, Math.min(1.0, f));
             rows.add(new TaskRow(r.id(), f, r.name(), r.detail(), r.cancellable(), r.cancelTooltip(),
-                    r.pausable(), r.paused(), r.stopping(), r.controls()));
+                    r.stopping(), r.controls()));
         }
         if (rows.isEmpty()) return IslandView.HIDDEN;
         return new IslandView(rows.get(0), List.copyOf(rows), rows.size() >= 2);

@@ -38,10 +38,9 @@ class MotionTest {
     }
 
     @Test void theRingSpinsOnlyWhenIndeterminateVisibleRunningAndMotionIsAllowed() {
-        assertTrue(Motion.spinRing(true, true, false, false));
-        assertFalse(Motion.spinRing(true, true, false, true));  // Reduce Motion: a still arc
-        assertFalse(Motion.spinRing(false, true, false, false)); // determinate
-        assertFalse(Motion.spinRing(true, false, false, false)); // nobody sees it
-        assertFalse(Motion.spinRing(true, true, true, false));   // paused
+        assertTrue(Motion.spinRing(true, true, false));
+        assertFalse(Motion.spinRing(true, true, true));  // Reduce Motion: a still arc
+        assertFalse(Motion.spinRing(false, true, false)); // determinate
+        assertFalse(Motion.spinRing(true, false, false)); // nobody sees it
     }
 }

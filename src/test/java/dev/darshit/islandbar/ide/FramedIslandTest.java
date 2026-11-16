@@ -18,7 +18,7 @@ class FramedIslandTest {
     }
 
     private static TaskRow row(long id, double f) {
-        return new TaskRow(id, f, "Task " + id, null, true, null, false, false, false, null);
+        return new TaskRow(id, f, "Task " + id, null, true, null, false, null);
     }
 
     /** A stalled row whose slot the panel cleared (rows shifted, or hidden then shown) must get a frame again. */

@@ -200,10 +200,10 @@ final class FramedIsland implements IslandCoordinator.Port {
     /** The ring uses the IDE progress bar's own colours (as the standard bar does), with the same tints. */
     static IslandPanel.RingColours ringColours(PillPalette p) {
         return new IslandPanel.RingColours(uiColour("ProgressBar.trackColor", p.separator()),
-                uiColour("ProgressBar.progressColor", 0xFF3574F0), STOPPING_ARGB, PAUSED_ARGB);
+                uiColour("ProgressBar.progressColor", 0xFF3574F0), STOPPING_ARGB);
     }
 
-    static final int STOPPING_ARGB = 0xFFE8A33D, PAUSED_ARGB = 0xFF8C8C8C; // as BarRenderer's tints
+    static final int STOPPING_ARGB = 0xFFE8A33D; // as BarRenderer's tint
 
     private static int uiColour(String key, int fallback) {
         Color c = UIManager.getColor(key);

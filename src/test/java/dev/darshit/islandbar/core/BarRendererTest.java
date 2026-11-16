@@ -161,9 +161,9 @@ class BarRendererTest {
         var r = standard();
         r.setReduceMotion(true);
         r.paint(null, BarTint.NORMAL);
-        assertNotNull(r.paint(null, BarTint.PAUSED));
+        assertNotNull(r.paint(null, BarTint.STOPPING));
         UIManager.put("ProgressBar.trackColor", Color.MAGENTA); // a theme switch
-        assertNotNull(r.paint(null, BarTint.PAUSED));
+        assertNotNull(r.paint(null, BarTint.STOPPING));
     }
 
     @Test void reduceMotionIndeterminateDrawsTheSegmentInTheMiddle() {
@@ -373,24 +373,16 @@ class BarRendererTest {
         assertNotEquals(normal, stopping);
     }
 
-    @Test void pausedTintDiffersFromNormalOnStandardBar() {
-        UIManager.put("ProgressBar.progressColor", Color.BLUE);
-        int normal = px(standard().paint(0.5, BarTint.NORMAL), AMBER_OR_GREY_PROBE_X, PROBE_Y);
-        int paused = px(standard().paint(0.5, BarTint.PAUSED), AMBER_OR_GREY_PROBE_X, PROBE_Y);
-        assertNotEquals(normal, paused);
-        assertNotEquals(px(standard().paint(0.5, BarTint.STOPPING), AMBER_OR_GREY_PROBE_X, PROBE_Y), paused);
-    }
-
     @Test void tintChangeRepaintsAStalledStandardBar() {
         var r = standard();
         r.paint(0.5, BarTint.NORMAL);
-        assertNotNull(r.paint(0.5, BarTint.PAUSED));
+        assertNotNull(r.paint(0.5, BarTint.STOPPING));
     }
 
     @Test void themeIgnoresTint() {
         install(StubUi.class);
         var r = new BarRenderer(800, 60, STUBS_ARE_THEMES, t -> fail(t), () -> null);
-        assertEquals(Color.RED.getRGB(), px(r.paint(0.5, BarTint.PAUSED), 100, 30));
+        assertEquals(Color.RED.getRGB(), px(r.paint(0.5, BarTint.STOPPING), 100, 30));
     }
 
     @Test void twoRenderersDoNotShareState() {

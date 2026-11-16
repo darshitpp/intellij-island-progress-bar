@@ -11,7 +11,7 @@ This IntelliJ plugin puts the IDE's background work (indexing, Gradle syncs, bui
 
 - Follows your IDE theme (light, dark or third-party) and re-colours live.
 - Three styles: **Menu bar**, **Floating** just below it (default), and **Ring**, a compact progress ring.
-- One task in the pill, the rest in a dropdown, with **Cancel**, **Pause** (when the IDE allows it) and **Hide** for each.
+- One task in the pill, the rest in a dropdown, with **Cancel** and **Hide** for each.
 - Long task names get a chevron that opens the list, where the full name wraps.
 - Uses your progress bar theme, or the IDE's standard bar.
 - Appears only for tasks that run longer than a tenth of a second; fades in and out, and respects macOS **Reduce Motion**.
@@ -55,7 +55,7 @@ On a Mac with a camera notch, the Menu bar style shows as Floating.
 
 <img src="screenshots/marketplace/3-ring-dark.png" width="49%" alt="Ring, dark"> <img src="screenshots/marketplace/3-ring-light.png" width="49%" alt="Ring, light">
 
-**Task list**: Cancel, Pause and Hide for each task
+**Task list**: Cancel and Hide for each task
 
 <img src="screenshots/marketplace/4-task-list-dark.png" width="49%" alt="Task list, dark"> <img src="screenshots/marketplace/4-task-list-light.png" width="49%" alt="Task list, light">
 

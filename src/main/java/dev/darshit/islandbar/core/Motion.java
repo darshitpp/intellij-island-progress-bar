@@ -44,7 +44,7 @@ public final class Motion {
     }
 
     /** Style C: the indeterminate ring spins only while someone can see it, the task runs and motion is allowed. */
-    public static boolean spinRing(boolean indeterminate, boolean visible, boolean paused, boolean reduceMotion) {
-        return indeterminate && visible && !paused && !reduceMotion;
+    public static boolean spinRing(boolean indeterminate, boolean visible, boolean reduceMotion) {
+        return indeterminate && visible && !reduceMotion;
     }
 }

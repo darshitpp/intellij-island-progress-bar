@@ -172,11 +172,11 @@ final class Objc {
     //      the panel, coordinator and controller); release CoreGraphics' colour space.
     //   2. the gate is closed (later onMain calls are dropped) and a native barrier is queued behind task 1.
     //   3. a short-lived daemon thread waits for the barrier, then closes STUBS, which frees the drain stub and the
-    //      four action stubs and their references to this class. If the barrier never comes, the stubs are kept.
+    //      three action stubs and their references to this class. If the barrier never comes, the stubs are kept.
     // The ObjC class itself stays registered under a stable name (classes cannot be safely disposed while AppKit may
-    // still cache them); the next plugin load finds it and re-points its four methods at its own stubs.
+    // still cache them); the next plugin load finds it and re-points its three methods at its own stubs.
 
-    /** The drain stub and the four action stubs; closed only by the teardown thread, after the barrier. */
+    /** The drain stub and the three action stubs; closed only by the teardown thread, after the barrier. */
     private static final Arena STUBS = Arena.ofShared();
 
     private static final MainQueue MAIN = new MainQueue(t -> LOG.warn("island main-queue error handler failed", t));
@@ -271,34 +271,32 @@ final class Objc {
         CoreGraphics.releaseShared();
     }
 
-    // ---- button target: one ObjC class under a stable name, reused across plugin loads; four selectors/stubs per load ----
+    // ---- button target: one ObjC class under a stable name, reused across plugin loads; three selectors/stubs per load ----
     private static final String TARGET_CLASS = "DevDarshitIslandBarTarget";
-    private static final String[] SELECTORS_IN_ORDER = {"chevron:", "cancel:", "pause:", "hide:"};
-    private static final String[] JAVA_METHODS = {"chevronCalled", "cancelCalled", "pauseCalled", "hideCalled"};
+    private static final String[] SELECTORS_IN_ORDER = {"chevron:", "cancel:", "hide:"};
+    private static final String[] JAVA_METHODS = {"chevronCalled", "cancelCalled", "hideCalled"};
     private static final MemorySegment TYPES_NOW = NIL; // class_replaceMethod ignores types when the method exists
     private static final LongConsumer NO_TASK = id -> {};
     private static final Runnable NOTHING = () -> {};
     private static volatile Runnable chevronAction = NOTHING;
     private static volatile LongConsumer cancelAction = NO_TASK;
-    private static volatile LongConsumer pauseAction = NO_TASK;
     private static volatile LongConsumer hideAction = NO_TASK;
     private static @Nullable Object actionOwner;          // guarded by Objc.class: the panel whose callbacks are set
     private static @Nullable MemorySegment actionTarget;  // guarded by Objc.class
     private static @Nullable MemorySegment targetClass;   // guarded by Objc.class
 
     /**
-     * The shared target for the pill's buttons. Selectors {@code chevron:}, {@code cancel:}, {@code pause:},
-     * {@code hide:}; the last three pass {@code [sender tag]} as the task id. Callbacks run on the AppKit main
+     * The shared target for the pill's buttons. Selectors {@code chevron:}, {@code cancel:} and
+     * {@code hide:}; the last two pass {@code [sender tag]} as the task id. Callbacks run on the AppKit main
      * thread; anything touching Swing or the platform must hop to the EDT itself. Exceptions are caught and logged.
      * {@code owner} is the panel; {@link #clearActions} with the same owner drops the callbacks. Main thread.
      */
     static synchronized MemorySegment actionTarget(Object owner, Runnable onChevron, LongConsumer onCancel,
-                                                   LongConsumer onTogglePause, LongConsumer onHide) {
+                                                   LongConsumer onHide) {
         if (GATE.isClosed()) throw new IllegalStateException("the native bridge has been shut down");
         actionOwner = owner;
         chevronAction = onChevron;
         cancelAction = onCancel;
-        pauseAction = onTogglePause;
         hideAction = onHide;
         if (actionTarget != null) return actionTarget;
         try (Arena strings = Arena.ofConfined()) { // the runtime copies class names and type strings
@@ -336,7 +334,6 @@ final class Objc {
     private static void clearCallbacks() {
         chevronAction = NOTHING;
         cancelAction = NO_TASK;
-        pauseAction = NO_TASK;
         hideAction = NO_TASK;
     }
 
@@ -361,11 +358,6 @@ final class Objc {
     @SuppressWarnings("unused")
     private static void cancelCalled(MemorySegment self, MemorySegment cmd, MemorySegment sender) {
         try { cancelAction.accept(n(sender, "tag")); } catch (Throwable t) { LOG.warn("cancel action failed", t); }
-    }
-
-    @SuppressWarnings("unused")
-    private static void pauseCalled(MemorySegment self, MemorySegment cmd, MemorySegment sender) {
-        try { pauseAction.accept(n(sender, "tag")); } catch (Throwable t) { LOG.warn("pause action failed", t); }
     }
 
     @SuppressWarnings("unused")

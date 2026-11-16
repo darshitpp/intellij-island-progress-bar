@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * is up. {@code P} is the project type (IntelliJ's {@code Project}).
  *
  * <p>Threading: {@link #tick} runs on the EDT. The port's failure callback and the {@link Actions} come from the
- * AppKit main thread; anything they do to the IDE (restoring its bar, cancel/pause/hide) hops through {@code edt}.
+ * AppKit main thread; anything they do to the IDE (restoring its bar, cancel/hide) hops through {@code edt}.
  * Any fatal problem (native failure, or the platform class behind the task source changing) removes the pill,
  * restores the IDE's bar, disables the coordinator for the rest of the session and reports the cause once.
  */
@@ -34,7 +34,6 @@ public final class IslandCoordinator<P> {
     public interface Actions {
         void hide(long id);
         void cancel(long id);
-        void togglePause(long id);
     }
 
     /** The IDE's own inline progress bar for one project. EDT only; both calls must be idempotent. */
@@ -221,10 +220,6 @@ public final class IslandCoordinator<P> {
 
         @Override public void cancel(long id) {
             hop(() -> control(id, "cancel", (r, c) -> c.cancel()));
-        }
-
-        @Override public void togglePause(long id) {
-            hop(() -> control(id, "pause/resume", (r, c) -> { if (r.paused()) c.resume(); else c.pause(); }));
         }
 
         /** Runs outside the lock: platform code must not run while the AppKit thread may wait on it. */

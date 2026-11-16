@@ -165,8 +165,8 @@ public final class IslandPanel {
     private final List<Row> rows = new ArrayList<>();
     private @Nullable String chevronGlyphKey;
 
-    /** Style C's ring colours (the IDE progress bar's track and fill, plus the Stopping and Paused tints). */
-    public record RingColours(int track, int normal, int stopping, int paused) {}
+    /** Style C's ring colours (the IDE progress bar's track and fill, plus the Stopping tint). */
+    public record RingColours(int track, int normal, int stopping) {}
 
     public IslandPanel(Consumer<Throwable> failure, PillStyle style, IslandCoordinator.Actions actions,
                        Consumer<Boolean> onListOpenChanged, LongConsumer onRowCleared) {
@@ -176,7 +176,7 @@ public final class IslandPanel {
 
     /** The standard bar's tint for a row; a theme bar ignores it. */
     public static BarTint tintOf(TaskRow r) {
-        return r.stopping() ? BarTint.STOPPING : r.paused() ? BarTint.PAUSED : BarTint.NORMAL;
+        return r.stopping() ? BarTint.STOPPING : BarTint.NORMAL;
     }
 
     // ---------------------------------------------------------------- public API (any thread)
@@ -401,7 +401,7 @@ public final class IslandPanel {
     private boolean create() {
         boolean replaced = finishLingering();
         readReduceMotion();
-        target = actionTarget(this, this::toggleList, actions::cancel, actions::togglePause, actions::hide);
+        target = actionTarget(this, this::toggleList, actions::cancel, actions::hide);
         Screen s = screen();
         applyEffectiveStyle(s); // before the views are made: they are built for the effective style
         PillGeometry.Rect r = compactRect(s);
@@ -653,7 +653,7 @@ public final class IslandPanel {
         MemorySegment key = nsString(FADE_KEY);
         List<V> views = new ArrayList<>();
         for (Row r : rows) {
-            if (r.taskId != null) views.addAll(List.of(r.separator, r.name, r.detail, r.bar, r.percent, r.pause, r.cancel, r.hide));
+            if (r.taskId != null) views.addAll(List.of(r.separator, r.name, r.detail, r.bar, r.percent, r.cancel, r.hide));
         }
         if (Boolean.FALSE.equals(more.hidden)) views.add(more);
         for (V view : views) {
@@ -677,12 +677,11 @@ public final class IslandPanel {
             r.detail = add(label(10.5, false));
             r.bar = add(view("NSView", 1, 1));
             r.percent = add(label(11, true));
-            r.pause = add(button("pause:", "pause.fill", 9, "❚❚"));
             r.cancel = add(button("cancel:", "xmark", 10, "✕"));
             r.hide = add(button("hide:", "minus", 10, "–"));
             // their own layers now: an implicitly backed view gets its layer replaced at first display, which would
             // drop the list's fade-in on the first open
-            for (V view : new V[]{r.name, r.detail, r.percent, r.pause, r.cancel, r.hide}) v(view.id, "setWantsLayer:", true);
+            for (V view : new V[]{r.name, r.detail, r.percent, r.cancel, r.hide}) v(view.id, "setWantsLayer:", true);
             rows.add(r);
         }
         if (palette != null) applyColours();
@@ -935,20 +934,19 @@ public final class IslandPanel {
 
     /**
      * Style C: the arc follows the primary task's fraction; indeterminate shows a quarter arc turned by a Core
-     * Animation rotation (rendered by the window server, no Java timer), only while the pill is visible and the task
-     * is not paused. Unchanged values are not sent.
+     * Animation rotation (rendered by the window server, no Java timer), only while the pill is visible. Unchanged values are not sent.
      */
     private void updateRing() {
         MemorySegment arc = ringArc, track = ringTrack;
         if (arc == null || track == null || panel == null) return;
         TaskRow t = view.primary();
         RingColours c = ringColours != null ? ringColours
-                : new RingColours(palette == null ? 0xFF808080 : palette.separator(), 0xFF3574F0, 0xFFE8A33D, 0xFF8C8C8C);
+                : new RingColours(palette == null ? 0xFF808080 : palette.separator(), 0xFF3574F0, 0xFFE8A33D);
         Double f = t == null ? null : t.fraction();
         // Reduce Motion + indeterminate: a still quarter arc would read as 25%, so show a faint full ring instead
         boolean stillIndeterminate = t != null && f == null && reduceMotion;
         double end = t == null ? 0 : stillIndeterminate ? 1 : f == null ? SPIN_ARC : Math.clamp(f, 0, 1);
-        int arcColour = t == null ? c.normal() : t.stopping() ? c.stopping() : t.paused() ? c.paused() : c.normal();
+        int arcColour = t == null ? c.normal() : t.stopping() ? c.stopping() : c.normal();
         if (stillIndeterminate) arcColour = (arcColour & 0x00FFFFFF) | 0x66000000;
         if (!Objects.equals(ringEnd, end)) { ringEnd = end; v(arc, "setStrokeEnd:", end); }
         if (!Objects.equals(ringTrackColour, c.track())) {
@@ -960,7 +958,7 @@ public final class IslandPanel {
             v(arc, "setStrokeColor:", p(colour(arcColour), "CGColor"));
         }
         // Reduce Motion: no spin; the ring is a faint full circle (see above), never a quarter arc that reads as 25%
-        boolean spin = t != null && Motion.spinRing(f == null, visibleToUser, t.paused(), reduceMotion);
+        boolean spin = t != null && Motion.spinRing(f == null, visibleToUser, reduceMotion);
         if (spin == spinning) return;
         spinning = spin;
         if (spin) {
@@ -1042,29 +1040,24 @@ public final class IslandPanel {
             barCy = lineTop + LINE1_H / 2;
         }
 
-        double hideX = right - BUTTON, cancelX = hideX - ROW_BTN_GAP - BUTTON, pauseX = cancelX - ROW_BTN_GAP - BUTTON;
+        double hideX = right - BUTTON, cancelX = hideX - ROW_BTN_GAP - BUTTON;
         r.hide.tag(t.id());
         r.hide.tip(IslandBundle.message("action.hide"));
         box.place(r.hide, hideX, cy - BUTTON / 2, BUTTON, BUTTON);
         r.cancel.hidden(!t.cancellable());
         cancelButton(r.cancel, t);
         box.place(r.cancel, cancelX, cy - BUTTON / 2, BUTTON, BUTTON);
-        r.pause.hidden(!t.pausable());
-        r.pause.tag(t.id());
-        r.pause.symbol(t.paused() ? "play.fill" : "pause.fill", t.paused() ? "▶" : "❚❚");
-        r.pause.tip(IslandBundle.message(t.paused() ? "action.resume" : "action.pause"));
-        box.place(r.pause, pauseX, cy - BUTTON / 2, BUTTON, BUTTON);
 
         r.percent.text(percentText(t.fraction()));
         double pw = r.percent.fitWidth();
-        box.place(r.percent, pauseX - GAP - pw, barCy - 8, pw, LINE1_H);
+        box.place(r.percent, cancelX - GAP - pw, barCy - 8, pw, LINE1_H);
         double barX = x + ROW_NAME_W + GAP;
         box.place(r.bar, barX, barCy - ROW_BAR_PT / 2, PillGeometry.rowBarWidthPt(W), ROW_BAR_PT);
     }
 
-    /** A wrapped row name spans from the left padding to the Pause button's slot (always reserved). */
+    /** A wrapped row name spans from the left padding to the Cancel button's slot (always reserved). */
     private static double wideNameWidth(double W) {
-        return Math.max(0, W - PAD_LEFT - PAD_RIGHT - 3 * BUTTON - 2 * ROW_BTN_GAP - GAP);
+        return Math.max(0, W - PAD_LEFT - PAD_RIGHT - 2 * BUTTON - ROW_BTN_GAP - GAP);
     }
 
     private void cancelButton(V b, TaskRow t) {
@@ -1113,7 +1106,6 @@ public final class IslandPanel {
             r.name.textColour(p.text());
             r.detail.textColour(p.secondaryText());
             r.percent.textColour(p.secondaryText());
-            r.pause.tint(p.text());
             r.hide.tint(p.text());
         }
         chevronGlyphKey = null;
@@ -1154,7 +1146,7 @@ public final class IslandPanel {
 
     private final class Row {
         @Nullable Long taskId;
-        V separator, name, detail, bar, percent, pause, cancel, hide;
+        V separator, name, detail, bar, percent, cancel, hide;
         private @Nullable String measuredText;
         private double measuredWidth = -1;
         private int nameLines;
@@ -1183,7 +1175,7 @@ public final class IslandPanel {
         }
 
         void hidden(boolean h) {
-            for (V v : new V[]{separator, name, detail, bar, percent, pause, cancel, hide}) v.hidden(h);
+            for (V v : new V[]{separator, name, detail, bar, percent, cancel, hide}) v.hidden(h);
         }
     }
 

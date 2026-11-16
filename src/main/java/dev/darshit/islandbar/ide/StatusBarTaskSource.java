@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.openapi.wm.ex.StatusBarEx;
-import com.intellij.openapi.progress.impl.ProgressSuspender;
 import dev.darshit.islandbar.core.IdentityIds;
 import dev.darshit.islandbar.core.TaskControls;
 import dev.darshit.islandbar.core.TaskNames;
@@ -56,23 +55,12 @@ public final class StatusBarTaskSource implements TaskSource {
     }
 
     private static TaskRow row(long id, ProgressModel m, TaskInfo info) {
-        ProgressSuspender suspender = ProgressSuspender.getSuspender(m.getProgressIndicator());
         boolean stopping = m.isStopping(info);
-        boolean paused = suspender != null && suspender.isSuspended();
-        String text = m.getText();
-        TaskControls controls = new TaskControls() {
-            @Override public void cancel() { guarded("cancel", m::cancel); }
-            @Override public void pause() {
-                if (suspender != null) guarded("pause", () -> suspender.suspendProcess(text));
-            }
-            @Override public void resume() {
-                if (suspender != null) guarded("resume", suspender::resumeProcess);
-            }
-        };
+        TaskControls controls = () -> guarded("cancel", m::cancel);
         return new TaskRow(id, m.isIndeterminate() ? null : m.getFraction(),
                 TaskRowFactory.name(m.getTitle(), info.getTitle(), m.getText()),
-                TaskRowFactory.detail(stopping, paused, m.getDetails(), m.getText()),
-                m.isCancellable(), TaskNames.pick(m.getCancelTooltipText()), suspender != null, paused, stopping, controls);
+                TaskRowFactory.detail(stopping, m.getDetails(), m.getText()),
+                m.isCancellable(), TaskNames.pick(m.getCancelTooltipText()), stopping, controls);
     }
 
     private static void guarded(String what, Runnable r) {
