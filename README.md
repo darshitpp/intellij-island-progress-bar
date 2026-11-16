@@ -43,13 +43,25 @@ On a Mac with a camera notch, the Menu bar style shows as Floating.
 
 ## Styles
 
-| | Dark | Light |
-|---|---|---|
-| **Menu bar**: one line in the menu bar | ![Menu bar, dark](screenshots/menu-bar-dark.gif) | ![Menu bar, light](screenshots/menu-bar-light.gif) |
-| **Floating**: below the menu bar | ![Floating, dark](screenshots/floating-dark.gif) | ![Floating, light](screenshots/floating-light.gif) |
-| **Ring**: progress ring | ![Ring, dark](screenshots/ring-dark.gif) | ![Ring, light](screenshots/ring-light.gif) |
-| **Task list**: Cancel, Pause, Hide per task | ![Task list, dark](screenshots/expanded-list-dark.gif) | ![Task list, light](screenshots/expanded-list-light.gif) |
-| **Several tasks** | ![Several tasks, dark](screenshots/multi-task-dark.gif) | ![Several tasks, light](screenshots/multi-task-light.gif) |
+**Floating**: just below the menu bar (default)
+
+<img src="screenshots/marketplace/1-floating-dark.png" width="49%" alt="Floating, dark"> <img src="screenshots/marketplace/1-floating-light.png" width="49%" alt="Floating, light">
+
+**Menu bar**: one line in the menu bar
+
+<img src="screenshots/marketplace/2-menu-bar-dark.png" width="49%" alt="Menu bar, dark"> <img src="screenshots/marketplace/2-menu-bar-light.png" width="49%" alt="Menu bar, light">
+
+**Ring**: a compact progress ring
+
+<img src="screenshots/marketplace/3-ring-dark.png" width="49%" alt="Ring, dark"> <img src="screenshots/marketplace/3-ring-light.png" width="49%" alt="Ring, light">
+
+**Task list**: Cancel, Pause and Hide for each task
+
+<img src="screenshots/marketplace/4-task-list-dark.png" width="49%" alt="Task list, dark"> <img src="screenshots/marketplace/4-task-list-light.png" width="49%" alt="Task list, light">
+
+**Several tasks**: the chevron opens the list
+
+<img src="screenshots/marketplace/5-multi-task-dark.png" width="49%" alt="Several tasks, dark"> <img src="screenshots/marketplace/5-multi-task-light.png" width="49%" alt="Several tasks, light">
 
 ## Troubleshooting
 
