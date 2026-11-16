@@ -1,0 +1,25 @@
+<idea-plugin>
+    <id>dev.darshit.island-progress-bar</id>
+    <name>Island Progress Bar</name>
+    <vendor url="https://darshit.dev">Darshit Patel</vendor>
+    <description><![CDATA[
+    <p>Shows the IDE's background tasks as a floating, themed progress pill at the top centre of your screen. One task is shown in the pill, the rest in a dropdown, with Cancel, Pause and Hide for each task. The pill follows your IDE theme.</p>
+    <p><b>Important: this plugin hides the IDE's own progress bar.</b> While the plugin is active and a task is shown in the pill, the inline progress bar in the IDE's status bar is hidden. It comes back as soon as no task is running. To keep the IDE's bar visible, go to <b>Settings | Tools | Island Progress Bar</b> and clear <b>Hide the IDE's own progress bar in the status bar while the pill is showing</b>. Disabling or uninstalling the plugin also restores it.</p>
+    <p>On a screen with a camera notch, the Menu bar style is shown as Floating, so it is never hidden behind the notch.</p>
+    <p>The plugin cancels and pauses tasks, and reads the status bar's task list, through internal IntelliJ Platform APIs. If a newer IDE changes them, the plugin switches itself off for the session and gives the IDE's own progress bar back.</p>
+    <p><b>Requirements:</b> macOS on Apple silicon only. On other systems the plugin does nothing.</p>
+    ]]></description>
+    <change-notes><![CDATA[
+    <ul>
+      <li>0.1.0: first release. Floating progress pill, task dropdown, Cancel / Pause / Hide, theme-aware colours, optional hiding of the IDE's inline progress bar.</li>
+    </ul>
+    ]]></change-notes>
+    <depends>com.intellij.modules.platform</depends>
+    <resource-bundle>messages.IslandBarBundle</resource-bundle>
+    <!-- IslandController and IslandSettings are light services (@Service); no registration needed -->
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="dev.darshit.islandbar.ide.IslandStartup"/>
+        <applicationConfigurable parentId="tools" instance="dev.darshit.islandbar.ide.IslandConfigurable"
+                                 id="dev.darshit.islandbar.settings" bundle="messages.IslandBarBundle" key="settings.display.name"/>
+    </extensions>
+</idea-plugin>
