@@ -2,6 +2,10 @@
 
 **Your IDE's background tasks, in a themed pill at the top of your screen.**
 
+[![Install](https://img.shields.io/badge/Install-JetBrains%20Marketplace-000?logo=jetbrains)](https://plugins.jetbrains.com/plugin/36181-island-progress-bar)
+[![JetBrains Marketplace](https://img.shields.io/jetbrains/plugin/v/36181-island-progress-bar?label=Marketplace)](https://plugins.jetbrains.com/plugin/36181-island-progress-bar)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/36181-island-progress-bar)](https://plugins.jetbrains.com/plugin/36181-island-progress-bar)
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="screenshots/hero-dark.gif">
   <img src="screenshots/hero-light.gif" alt="The pill filling up while indexing, then the chevron opening the task list">
@@ -19,9 +23,9 @@ This IntelliJ plugin puts the IDE's background work (indexing, Gradle syncs, bui
 
 ## Install
 
-Build the plugin with `./gradlew buildPlugin` (JDK 25). The zip is in `build/distributions/`. In the IDE: **Settings | Plugins | gear icon | Install Plugin from Disk...**, pick the zip, restart.
+In the IDE: **Settings | Plugins | Marketplace**, search for "Island Progress Bar". Or get it from the [Marketplace page](https://plugins.jetbrains.com/plugin/36181-island-progress-bar), or download the zip from [Releases](https://github.com/darshitpp/intellij-island-progress-bar/releases) and use **Install Plugin from Disk...**.
 
-When upgrading, bump the version in `build.gradle.kts`: the IDE skips a same-version install.
+To build it yourself: `./gradlew buildPlugin` (JDK 25); the zip is in `build/distributions/`.
 
 ## Requirements
 
